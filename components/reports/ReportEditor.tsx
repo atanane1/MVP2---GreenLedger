@@ -19,6 +19,7 @@ export function ReportEditor({ dataset, sections: initialSections }: ReportEdito
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
     null
   );
+  const [viewMode, setViewMode] = useState<"edit" | "preview">("preview");
 
   useEffect(() => {
     setSections(initialSections);
@@ -131,46 +132,99 @@ export function ReportEditor({ dataset, sections: initialSections }: ReportEdito
     );
   }
 
+  const renderContent = (content: string) => {
+    // Convert markdown-like formatting to HTML
+    return content
+      .split('\n')
+      .map((line, i) => {
+        if (line.startsWith('## ')) {
+          return <h2 key={i} className="text-2xl font-bold mt-8 mb-4 text-gray-900">{line.substring(3)}</h2>;
+        }
+        if (line.startsWith('### ')) {
+          return <h3 key={i} className="text-xl font-semibold mt-6 mb-3 text-gray-800">{line.substring(4)}</h3>;
+        }
+        if (line.startsWith('- ') || line.startsWith('* ')) {
+          return <li key={i} className="ml-6 mb-2 text-gray-700">{line.substring(2)}</li>;
+        }
+        if (line.trim() === '') {
+          return <br key={i} />;
+        }
+        return <p key={i} className="mb-4 text-gray-700 leading-relaxed">{line}</p>;
+      });
+  };
+
   return (
     <div className="space-y-6">
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">CSRD sections (E1 / S1 / G1)</h2>
-          <div className="flex space-x-2">
+      {/* Toolbar */}
+      <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <h2 className="text-xl font-semibold text-gray-900">CSRD Report</h2>
+            <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode("preview")}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === "preview"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Preview
+              </button>
+              <button
+                onClick={() => setViewMode("edit")}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === "edit"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
             <button
               onClick={handleSave}
               disabled={saving}
-              className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm font-medium transition-colors"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
-            <button
-              onClick={() => handleExport("html")}
-              disabled={!!exporting}
-              className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {exporting === "html" ? "Exporting..." : "Export HTML"}
-            </button>
-            <button
-              onClick={() => handleExport("pdf")}
-              disabled={!!exporting}
-              className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {exporting === "pdf" ? "Exporting..." : "Export PDF"}
-            </button>
-            <button
-              onClick={() => handleExport("xbrl")}
-              disabled={!!exporting}
-              className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {exporting === "xbrl" ? "Exporting..." : "Export XBRL"}
-            </button>
+            <div className="relative group">
+              <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm font-medium transition-colors">
+                Export
+              </button>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                <button
+                  onClick={() => handleExport("pdf")}
+                  disabled={!!exporting}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-md"
+                >
+                  {exporting === "pdf" ? "Exporting PDF..." : "📄 Export PDF"}
+                </button>
+                <button
+                  onClick={() => handleExport("html")}
+                  disabled={!!exporting}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  {exporting === "html" ? "Exporting HTML..." : "🌐 Export HTML"}
+                </button>
+                <button
+                  onClick={() => handleExport("xbrl")}
+                  disabled={!!exporting}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-b-md"
+                >
+                  {exporting === "xbrl" ? "Exporting XBRL..." : "📊 Export XBRL"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         {message && (
           <div
-            className={`mb-4 px-4 py-3 rounded ${
+            className={`mt-4 px-4 py-3 rounded-md ${
               message.type === "success"
                 ? "bg-green-50 border border-green-200 text-green-700"
                 : "bg-red-50 border border-red-200 text-red-700"
@@ -181,17 +235,59 @@ export function ReportEditor({ dataset, sections: initialSections }: ReportEdito
         )}
       </div>
 
-      {sections.map((section) => (
-        <div key={section.id} className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">{section.title}</h3>
-          <textarea
-            value={section.content}
-            onChange={(e) => handleContentChange(section.id, e.target.value)}
-            rows={12}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 font-mono text-sm"
-          />
+      {/* Report Pages View */}
+      {viewMode === "preview" ? (
+        <div className="bg-gray-100 p-8 min-h-screen">
+          <div className="max-w-4xl mx-auto space-y-8">
+            {sections.map((section, index) => (
+              <div key={section.id} className="report-page">
+                <div className="mb-8 pb-4 border-b-2 border-gray-300">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                      {section.sectionCode}
+                    </span>
+                    <span className="text-xs text-gray-400">Page {index + 1}</span>
+                  </div>
+                  <h1 className="text-3xl font-bold text-gray-900 mt-2">{section.title}</h1>
+                </div>
+                <div className="prose prose-lg max-w-none">
+                  {renderContent(section.content)}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+      ) : (
+        /* Edit Mode */
+        <div className="space-y-6">
+          {sections.map((section) => (
+            <div key={section.id} className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      {section.sectionCode}
+                    </span>
+                    <h3 className="text-xl font-bold text-gray-900 mt-1">{section.title}</h3>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <textarea
+                  value={section.content}
+                  onChange={(e) => handleContentChange(section.id, e.target.value)}
+                  rows={20}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm leading-relaxed font-sans resize-y"
+                  placeholder="Enter report content here. Use ## for headings, - for lists..."
+                />
+                <div className="mt-3 text-xs text-gray-500">
+                  <p>💡 Tip: Use <code className="bg-gray-100 px-1 rounded">## Heading</code> for headings, <code className="bg-gray-100 px-1 rounded">- Item</code> for lists</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
