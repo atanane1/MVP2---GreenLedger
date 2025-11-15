@@ -9,11 +9,11 @@ interface PageShellProps {
 
 export function PageShell({ children, breadcrumbs }: PageShellProps) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       <TopNav />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
-        <div className="mt-6">
+        <div className="mt-4">
           {children}
         </div>
       </main>
