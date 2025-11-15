@@ -6,10 +6,17 @@ export const dynamic = 'force-dynamic';
 
 export default async function MappingsPage() {
   // Get latest dataset with mappings
-  const dataset = await prisma.dataset.findFirst({
-    orderBy: { createdAt: "desc" },
-    include: { fieldMappings: true },
-  });
+  let dataset = null;
+  
+  try {
+    dataset = await prisma.dataset.findFirst({
+      orderBy: { createdAt: "desc" },
+      include: { fieldMappings: true },
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    // Continue with null dataset if database error
+  }
 
   return (
     <PageShell breadcrumbs={[{ label: "Home", href: "/" }, { label: "ESRS Mappings" }]}>

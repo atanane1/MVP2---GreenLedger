@@ -7,29 +7,37 @@ export const dynamic = 'force-dynamic';
 
 export default async function ReportsPage() {
   // Get latest dataset with sections
-  const dataset = await prisma.dataset.findFirst({
-    orderBy: { createdAt: "desc" },
-    include: { fieldMappings: true, reportSections: true },
-  });
+  let dataset = null;
+  let sections: any[] = [];
+  
+  try {
+    dataset = await prisma.dataset.findFirst({
+      orderBy: { createdAt: "desc" },
+      include: { fieldMappings: true, reportSections: true },
+    });
 
-  let sections = dataset?.reportSections || [];
+    sections = dataset?.reportSections || [];
 
-  // Generate default sections if none exist
-  if (dataset && sections.length === 0 && dataset.fieldMappings.length > 0) {
-    const defaultSections = buildDefaultSections(dataset, dataset.fieldMappings);
-    const createdSections = await Promise.all(
-      defaultSections.map((section) =>
-        prisma.reportSection.create({
-          data: {
-            datasetId: dataset.id,
-            sectionCode: section.sectionCode,
-            title: section.title,
-            content: section.content,
-          },
-        })
-      )
-    );
-    sections = createdSections;
+    // Generate default sections if none exist
+    if (dataset && sections.length === 0 && dataset.fieldMappings.length > 0) {
+      const defaultSections = buildDefaultSections(dataset, dataset.fieldMappings);
+      const createdSections = await Promise.all(
+        defaultSections.map((section) =>
+          prisma.reportSection.create({
+            data: {
+              datasetId: dataset.id,
+              sectionCode: section.sectionCode,
+              title: section.title,
+              content: section.content,
+            },
+          })
+        )
+      );
+      sections = createdSections;
+    }
+  } catch (error) {
+    console.error("Database error:", error);
+    // Continue with empty state if database error
   }
 
   return (

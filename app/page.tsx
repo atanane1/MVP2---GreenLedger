@@ -8,14 +8,21 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   // Get latest dataset
-  const latestDataset = await prisma.dataset.findFirst({
-    orderBy: { createdAt: "desc" },
-    include: { fieldMappings: true },
-  });
-
+  let latestDataset = null;
   let kpis = {};
-  if (latestDataset) {
-    kpis = await computeKpis(latestDataset.id);
+  
+  try {
+    latestDataset = await prisma.dataset.findFirst({
+      orderBy: { createdAt: "desc" },
+      include: { fieldMappings: true },
+    });
+
+    if (latestDataset) {
+      kpis = await computeKpis(latestDataset.id);
+    }
+  } catch (error) {
+    console.error("Database error:", error);
+    // Continue with empty state if database error
   }
 
   return (
