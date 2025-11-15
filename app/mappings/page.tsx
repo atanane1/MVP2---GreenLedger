@@ -2,6 +2,8 @@ import { PageShell } from "@/components/layout/PageShell";
 import { MappingEditor } from "@/components/mappings/MappingEditor";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 export default async function MappingsPage() {
   // Get latest dataset with mappings
   const dataset = await prisma.dataset.findFirst({

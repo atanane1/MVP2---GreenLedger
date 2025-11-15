@@ -3,6 +3,8 @@ import { ReportEditor } from "@/components/reports/ReportEditor";
 import { prisma } from "@/lib/prisma";
 import { buildDefaultSections } from "@/lib/reportTemplate";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ReportsPage() {
   // Get latest dataset with sections
   const dataset = await prisma.dataset.findFirst({

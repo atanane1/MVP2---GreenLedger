@@ -4,6 +4,8 @@ import { SectionCard } from "@/components/dashboard/SectionCard";
 import { computeKpis } from "@/lib/kpi";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   // Get latest dataset
   const latestDataset = await prisma.dataset.findFirst({
