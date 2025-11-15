@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   // Get latest dataset
-  let latestDataset = null;
-  let kpis = {};
-  let dbError = null;
+  let latestDataset: Awaited<ReturnType<typeof prisma.dataset.findFirst>> & { fieldMappings: any[] } | null = null;
+  let kpis: { totalEmissions?: number; totalEmployees?: number; governancePoints?: number } = {};
+  let dbError: string | null = null;
   
   try {
     // Test database connection first

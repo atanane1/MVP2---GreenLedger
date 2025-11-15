@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function ReportsPage() {
   // Get latest dataset with sections
-  let dataset = null;
+  let dataset: Awaited<ReturnType<typeof prisma.dataset.findFirst>> & { fieldMappings: any[]; reportSections: any[] } | null = null;
   let sections: any[] = [];
   
   try {
@@ -21,11 +21,12 @@ export default async function ReportsPage() {
     // Generate default sections if none exist
     if (dataset && sections.length === 0 && dataset.fieldMappings.length > 0) {
       const defaultSections = buildDefaultSections(dataset, dataset.fieldMappings);
+      const datasetId = dataset.id; // Extract to satisfy TypeScript
       const createdSections = await Promise.all(
         defaultSections.map((section) =>
           prisma.reportSection.create({
             data: {
-              datasetId: dataset.id,
+              datasetId: datasetId,
               sectionCode: section.sectionCode,
               title: section.title,
               content: section.content,

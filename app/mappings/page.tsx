@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function MappingsPage() {
   // Get latest dataset with mappings
-  let dataset = null;
+  let dataset: Awaited<ReturnType<typeof prisma.dataset.findFirst>> & { fieldMappings: any[] } | null = null;
   
   try {
     dataset = await prisma.dataset.findFirst({
