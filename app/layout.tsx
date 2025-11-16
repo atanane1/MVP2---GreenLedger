@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import "@/styles/globals.css";
+﻿import type { Metadata } from "next";
+import "../styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Green Ledger – CSRD / ESRS Reporting",
+  title: "Green Ledger â€“ CSRD / ESRS Reporting",
   description: "CSRD and ESRS reporting platform",
 };
 
@@ -17,4 +17,5 @@ export default function RootLayout({
     </html>
   );
 }
+
 
